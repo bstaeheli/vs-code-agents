@@ -4,7 +4,7 @@ description: Prevents silent scope assumptions during software planning. Forces 
 license: MIT
 metadata:
   author: aricd + chatgpt
-  version: "1.0"
+  version: "1.1"
 ---
 
 # No Silent Assumptions (Software Planning)
@@ -50,6 +50,53 @@ If something affects:
 3. proceed only with explicitly labeled ASSUMPTION-* items (where allowed)
 
 No silent assumptions.
+
+---
+
+## Decision Handling — Proposed Defaults vs. Applied Requirements
+
+This section governs how the agent handles any situation where a requirement is **not explicitly provided**.
+
+### The Four Rules
+
+1. **Do not finalize a requirement using a default.** A proposed default is a suggestion, not a decision.
+2. **Propose the default, but mark it clearly.** Use the exact label `Suggested default (not applied)` so the user can confirm quickly—never treat a proposed default as confirmed.
+3. **Do not convert a proposed default into a requirement, task, risk, or backcompat decision until the user explicitly confirms.**
+4. **Do not re-open a question the user has already answered**, unless there is a genuine conflict.
+
+### Required Response Format for Unresolved Items
+
+Use this exact pattern for every unresolved soft-default decision:
+
+```md
+OPENQ-###: <question>
+Suggested default (not applied): <default>
+Status: Awaiting user confirmation
+```
+
+### Required Summary Statement
+
+When surfacing unresolved items to the user, the agent MUST say:
+
+> "I identified N unresolved decisions and proposed defaults, but **I did not apply them**. Please confirm each item before I finalize requirements."
+
+Do **not** say:
+- "I've integrated defaults into the plan"
+- "Confirm defaults or override"
+- "Default is X" (without "not applied")
+- "I've added these defaults and called them out"
+
+### Prohibited Phrasing
+
+| ❌ Prohibited | ✅ Required |
+|---|---|
+| "I added defaults to the plan" | "I proposed defaults but did not apply them" |
+| "Confirm defaults or override" | "Please confirm each item; none are applied yet" |
+| "Default is X" | "Suggested default (not applied): X" |
+| "I've now integrated it… with defaults called out" | "I surfaced N unresolved decisions; none finalized" |
+| "Defaults included in requirements section" | "Defaults are PROPOSED only; not in requirements" |
+
+This applies even when using the Batch Question UX pattern. Offering options in that format does not grant permission to pre-apply defaults.
 
 ---
 
@@ -252,8 +299,31 @@ No buried assumptions in prose.
 ## OPENQ-* Handling & Handoff
 
 * All unresolved OPENQ-* items must be listed prominently before handoff.
-* OPENQ-* related to CONTRACTS or BACKCOMPAT are blocking.
-* OPENQ-* related to TEST or PERFORMANCE may be non-blocking **only if defaults were explicitly accepted**.
+* Every OPENQ-* must carry `Status: Awaiting user confirmation` until the user replies.
+* Once confirmed, update to `Status: Confirmed — <answer>` and move values into the appropriate plan section.
+* OPENQ-* related to CONTRACTS or BACKCOMPAT are **hard-blocking** — the plan must not advance until resolved.
+* OPENQ-* related to TEST or PERFORMANCE are **soft-blocking** — they may be non-blocking **only if defaults were explicitly accepted** by the user.
+
+### Correct Checkpoint Phrasing
+
+Use this pattern for the Performance/Backcompat checkpoint:
+
+```md
+**Performance/Backcompat checkpoint (unresolved):**
+I need your input before finalizing requirements. I can suggest defaults, but I will not apply them unless you confirm.
+
+OPENQ-008 (Performance/SLA)
+Are there specific performance or SLA constraints?
+Suggested default (not applied): Optimize for clarity; no special performance constraints.
+
+OPENQ-009 (Backcompat/Consumers)
+Does this affect existing interfaces or consumers requiring backwards compatibility?
+Suggested default (not applied): No backwards compatibility required.
+
+Reply format: `Open Questions: 8:a, 9:a ...` or `Open Questions: defaults`
+```
+
+Do **not** pre-insert backcompat statements, default requirement text, or ASSUMPTION-* entries based on unconfirmed items.
 
 ---
 
@@ -264,3 +334,50 @@ No buried assumptions in prose.
 * Burying assumptions in narrative text
 * Assuming performance requirements imply complexity
 * Treating test depth as implied rather than confirmed
+* Writing a proposed default into a REQ-*, BACKCOMPAT-*, or TASK-* section before the user confirms it
+* Saying "default is X" without the phrase "not applied"
+* Updating plan sections first, then asking for confirmation — confirmation must precede updates
+* Treating no-reply as implicit approval of proposed defaults
+* Marking a plan "Ready for Critic" or handing off while any OPENQ-* item still has `Status: Awaiting user confirmation`
+
+---
+
+## Finalization Gate
+
+Before marking a plan "Done", "Ready for Critic", or handing off to Implementer, the agent MUST emit a **Finalization Status block**.
+
+### Required Format
+
+```md
+## Finalization Status
+
+### Resolved Decisions
+- OPENQ-001: <question> → <answer> [RESOLVED]
+
+### Proposed Defaults Awaiting Confirmation
+- OPENQ-002: <question>
+  Suggested default (not applied): <default>
+  Status: Awaiting user confirmation
+
+### Open Questions (no default)
+- OPENQ-003: <question>
+  Status: Awaiting user confirmation
+
+Plan status: Draft (blocked on confirmation)
+```
+
+### Gating Rules
+
+* If **any** OPENQ-* has `Status: Awaiting user confirmation`, the plan status MUST be:
+  `Plan status: Draft (blocked on confirmation)`
+* The agent MUST NOT hand off to Critic while blocked.
+* Once all items are resolved, update and emit:
+  `Plan status: Ready for Critic`
+
+### What Counts as Resolution
+
+* User explicitly confirms a default (including replying `Open Questions: defaults`)
+* User provides an explicit alternative answer
+* User explicitly states "skip this" or "not applicable"
+
+Silence, no-reply, or implicit continuation does **not** count as resolution.

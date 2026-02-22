@@ -128,19 +128,42 @@ Prefer small, focused scopes delivering value quickly.
    User may reply with: `Open Questions: 1:a, 2:y, 3:c` or `Open Questions: defaults` to accept all defaults.
    
    **Do not force batch questions every time**—only when ambiguity is detected.
-6. **Performance/Backcompat checkpoint**: Before finalizing requirements, explicitly ask:
-   - "Are there specific **performance or SLA constraints**? (Default: optimize for clarity; no premature optimization)"
-   - "Does this change affect **existing interfaces** that other code/users depend on? (Default: no backwards compatibility required if no existing consumers)"
-   
-   **Example (avoid over-engineering)**: A request to "save files" does not imply that old file versions must be readable by the new code. Assuming backwards compatibility when none is required can add massive unnecessary complexity. Ask explicitly rather than assuming.
+6. **Performance/Backcompat checkpoint (unresolved — do not pre-apply defaults)**: Surface these as unresolved OPENQ-* items using the exact format from `no-silent-assumptions.software-planning`:
+   ```md
+   OPENQ-### (Performance/SLA)
+   Are there specific performance or SLA constraints?
+   Suggested default (not applied): Optimize for clarity; no special performance constraints.
+
+   OPENQ-### (Backcompat/Consumers)
+   Does this change affect existing interfaces or consumers requiring backwards compatibility?
+   Suggested default (not applied): No backwards compatibility required.
+
+   Reply format: `Open Questions: N:a, N:a ...` or `Open Questions: defaults`
+   ```
+   Do **not** insert backcompat statements, requirement text, or ASSUMPTION-* entries based on these unconfirmed items. Do **not** say "confirm defaults or override" — say "I proposed defaults but did not apply them."
+
+   **Example (avoid over-engineering)**: A request to "save files" does not imply that old file versions must be readable by the new code. Ask explicitly rather than assuming.
 7. Enumerate assumptions, open questions. Resolve before finalizing.
 8. Outline milestones, break into numbered steps with implementer-ready detail.
 9. Include any explicitly-required release/documentation artifacts as a milestone (if applicable).
 10. **Cross-repo coordination**: If plan involves APIs spanning multiple repositories, load `cross-repo-contract` skill. Document contract requirements and sync dependencies in plan.
 11. Specify verification steps, handoff notes, rollback considerations.
 12. Verify all work delivers on value statement. Don't defer core value to future phases.
-13. **BEFORE HANDOFF**: Scan plan for any `OPEN QUESTION` items not marked as resolved/closed. If any exist, prominently list them and ask user: "The following open questions remain unresolved. Do you want to proceed to Critic/Implementer with these unresolved, or should we address them first?"
-14. **TEMPLATE VALIDATION CHECKPOINT (BEFORE CRITIC HANDOFF)**: Before handing off to Critic, verify:
+13. **FINALIZATION GATE (BEFORE HANDOFF)**: Load `no-silent-assumptions.software-planning` skill and emit a Finalization Status block:
+    ```md
+    ## Finalization Status
+    ### Resolved Decisions
+    - OPENQ-001: <question> → <answer> [RESOLVED]
+    ### Proposed Defaults Awaiting Confirmation
+    - OPENQ-002: ...
+      Suggested default (not applied): <default>
+      Status: Awaiting user confirmation
+    Plan status: Draft (blocked on confirmation)  ← or "Ready for Critic" when all resolved
+    ```
+    If **any** item has `Status: Awaiting user confirmation`, do NOT hand off to Critic. State: "Plan status: Draft (blocked on confirmation)" and wait.
+    Only when all OPENQ-* items are resolved may you emit "Plan status: Ready for Critic" and proceed.
+14. **BEFORE HANDOFF**: Scan plan for any `OPEN QUESTION` items not marked as `[RESOLVED]` or `[CLOSED]`. If any exist, prominently list them and ask user: "The following open questions remain unresolved. Do you want to proceed to Critic with these unresolved, or should we address them first?"
+15. **TEMPLATE VALIDATION CHECKPOINT (BEFORE CRITIC HANDOFF)**: Before handing off to Critic, verify:
     - [ ] All 16 sections present in correct order (per `structured-labeling` skill)
     - [ ] All applicable labels used with proper prefixes (REQ-*, CON-*, TASK-*, etc.)
     - [ ] TASK numbering is global (not restarting per phase)
@@ -148,6 +171,7 @@ Prefer small, focused scopes delivering value quickly.
     - [ ] USER-TASK items (if any) have justification
     - [ ] BACKCOMPAT decision explicitly stated
     - [ ] TEST-SCOPE defined
+    - [ ] Finalization Status block emitted; all OPENQ-* items resolved (`Plan status: Ready for Critic`)
     If any items fail, fix before handoff.
     
     **Automated validation available**: Run the plan validator as a self-check before Critic handoff. The script validates frontmatter, section ordering, label usage, OPENQ resolution, and status values. Fix any failures before handoff.
