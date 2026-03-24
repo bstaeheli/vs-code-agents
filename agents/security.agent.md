@@ -3,25 +3,8 @@ description: Comprehensive security audit specialist - architecture, code, depen
 name: Security
 target: vscode
 argument-hint: Describe the code, component, or PR to security-review
-tools: ['execute/getTerminalOutput', 'execute/runTask', 'execute/getTaskOutput', 'execute/createAndRunTask', 'execute/runInTerminal', 'read/problems', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit/createDirectory', 'edit/createFile', 'edit/editFiles', 'search', 'web', 'todo']
+tools: ['execute/getTerminalOutput', 'execute/runTask', 'execute/getTaskOutput', 'execute/createAndRunTask', 'execute/runInTerminal', 'read/problems', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit/createDirectory', 'edit/createFile', 'edit/editFiles', 'search', 'web', 'agent', 'todo']
 model: Claude Opus 4.5
-handoffs:
-  - label: Request Analysis
-    agent: Analyst
-    prompt: Security finding requires deep technical investigation.
-    send: false
-  - label: Update Plan
-    agent: Planner
-    prompt: Security risks require plan revision.
-    send: false
-  - label: Request Implementation
-    agent: Implementer
-    prompt: Security remediation requires code changes.
-    send: false
-  - label: Architecture Review
-    agent: Architect
-    prompt: Security audit reveals architectural concerns requiring design changes.
-    send: false
 ---
 
 # Security Agent - Comprehensive Security Review Specialist

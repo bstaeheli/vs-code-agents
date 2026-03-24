@@ -3,21 +3,8 @@ description: Constructive reviewer and program manager that stress-tests plannin
 name: Critic
 target: vscode
 argument-hint: Reference the plan or architecture document to critique (e.g., plan 002)
-tools: ['execute/getTerminalOutput', 'execute/runInTerminal', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit', 'search', 'web', 'todo']
+tools: ['execute/getTerminalOutput', 'execute/runInTerminal', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit', 'search', 'web', 'agent', 'todo']
 model: Claude Opus 4.5
-handoffs:
-  - label: Revise Plan
-    agent: Planner
-    prompt: Please revise the plan based on my critique findings.
-    send: false
-  - label: Request Analysis
-    agent: Analyst
-    prompt: Plan reveals research gaps or unverified assumptions. Please investigate.
-    send: false
-  - label: Approve for Implementation
-    agent: Implementer
-    prompt: Plan is sound and ready for implementation. Please begin implementation now. 
-    send: false
 ---
 Purpose:
 - Evaluate `planning/` docs (primary), `architecture/`, `roadmap/` (when requested).
@@ -102,7 +89,7 @@ Agent Workflow:
 - **Creates critiques**: `.agent-output/critiques/NNN-feature-name-critique.md` for audit trail.
 - **References analyst**: Check if findings incorporated into plan.
 - **Feedback to planner**: Planner revises. Critic updates critique with revision history.
-- **Handoff to implementer**: Once approved, implementer proceeds with critique as context.
+- **Reports approval to orchestrator**: Once approved, orchestrator delegates to Implementer with critique as context.
 
 Distinction from reviewer: Critic=BEFORE implementation; Reviewer=AFTER implementation.
 

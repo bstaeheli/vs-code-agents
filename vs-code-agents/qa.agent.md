@@ -3,21 +3,8 @@ description: Dedicated QA specialist verifying test coverage and execution befor
 name: QA
 target: vscode
 argument-hint: Reference the implementation or plan to test (e.g., plan 002)
-tools: ['execute/testFailure', 'execute/getTerminalOutput', 'execute/runInTerminal', 'execute/runTests', 'read/problems', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit/createDirectory', 'edit/createFile', 'edit/editFiles', 'edit/editNotebook', 'search', 'todo']
+tools: ['execute/testFailure', 'execute/getTerminalOutput', 'execute/runInTerminal', 'execute/runTests', 'read/problems', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit/createDirectory', 'edit/createFile', 'edit/editFiles', 'edit/editNotebook', 'search', 'agent', 'todo']
 model: GPT-5.2
-handoffs:
-  - label: Request Testing Infrastructure
-    agent: Planner
-    prompt: Testing infrastructure is missing or inadequate. Please update plan to include required test frameworks, libraries, and configuration.
-    send: false
-  - label: Request Test Fixes
-    agent: Implementer
-    prompt: Implementation has test coverage gaps or test failures. Please address.
-    send: false
-  - label: Send for Review
-    agent: UAT
-    prompt: Implementation is completed and QA passed. Please review. 
-    send: false
 ---
 Purpose:
 
@@ -28,7 +15,7 @@ Deliverables:
 - QA document in `.agent-output/qa/` (e.g., `003-fix-workspace-qa.md`)
 - Phase 1: Test strategy (approach, types, coverage, scenarios)
 - Phase 2: Test execution results (pass/fail, coverage, issues)
-- End Phase 2: "Handing off to uat agent for value delivery validation"
+- End Phase 2: "Reporting to orchestrator for UAT delegation"
 - Reference `.agent-output/qa/README.md` for checklist
 
 Core Responsibilities:
@@ -101,7 +88,7 @@ Before approving any implementation, verify against The Iron Laws:
 If implementation arrives without tests:
 1. **REJECT** with "TDD Required: Tests must be written first"
 2. Document which tests should have been written first
-3. Handoff back to Implementer with specific test requirements
+3. Report rejection to orchestrator for Implementer to address with specific test requirements
 
 ### TDD Compliance Checklist Validation (MANDATORY)
 
@@ -123,7 +110,7 @@ If implementation arrives without tests:
 **If table is missing or incomplete:**
 1. **REJECT** with "TDD Compliance Checklist Missing or Incomplete"
 2. List the functions/classes that need TDD evidence
-3. Handoff back to Implementer with: "Implementation rejected. You must provide TDD compliance evidence for: [list functions]. Restart with test-first approach."
+3. Report rejection to orchestrator: "Implementation rejected. Implementer must provide TDD compliance evidence for: [list functions]. Restart with test-first approach."
 
 Process:
 

@@ -3,25 +3,8 @@ description: Strategic vision holder maintaining outcome-focused product roadmap
 name: Roadmap
 target: vscode
 argument-hint: Describe the epic, feature, or strategic question to address
-tools: ['execute/getTerminalOutput', 'execute/runTask', 'execute/runInTerminal', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit/createDirectory', 'edit/createFile', 'edit/editFiles', 'search', 'web', 'todo']
+tools: ['execute/getTerminalOutput', 'execute/runTask', 'execute/runInTerminal', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit/createDirectory', 'edit/createFile', 'edit/editFiles', 'search', 'web', 'agent', 'todo']
 model: Claude Sonnet 4.5
-handoffs:
-  - label: Request Architectural Guidance
-    agent: Architect
-    prompt: Epic requires architectural assessment and documentation before planning.
-    send: false
-  - label: Request Plan Creation
-    agent: Planner
-    prompt: Epic is ready for detailed implementation planning.
-    send: false
-  - label: Request Plan Update
-    agent: Planner
-    prompt: Please review and potentially revise the plan based on the updated roadmap.
-    send: false
-  - label: Receive Plan Commit Notification
-    agent: DevOps
-    prompt: Plan committed locally, updating release tracker with current status.
-    send: false
 ---
 Purpose:
 

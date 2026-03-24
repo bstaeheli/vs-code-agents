@@ -3,21 +3,8 @@ description: Execution-focused coding agent that implements approved plans.
 name: Implementer
 target: vscode
 argument-hint: Reference the approved plan to implement (e.g., plan 002)
-tools: ['vscode/vscodeAPI', 'execute', 'read', 'edit', 'search', 'web', 'ms-python.python/getPythonEnvironmentInfo', 'ms-python.python/getPythonExecutableCommand', 'ms-python.python/installPythonPackage', 'ms-python.python/configurePythonEnvironment', 'todo']
+tools: ['vscode/vscodeAPI', 'execute', 'read', 'edit', 'search', 'web', 'ms-python.python/getPythonEnvironmentInfo', 'ms-python.python/getPythonExecutableCommand', 'ms-python.python/installPythonPackage', 'ms-python.python/configurePythonEnvironment', 'agent', 'todo']
 model: Claude Opus 4.5
-handoffs:
-  - label: Request Analysis
-    agent: Analyst
-    prompt: I've encountered technical unknowns during implementation. Please investigate.
-    send: false
-  - label: Request Plan Clarification
-    agent: Planner
-    prompt: The plan has ambiguities or conflicts. Please clarify.
-    send: false
-  - label: Submit for Code Review
-    agent: Code Reviewer
-    prompt: Implementation is complete. Please review code quality before QA.
-    send: false
 ---
 
 ## Purpose

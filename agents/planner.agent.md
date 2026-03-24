@@ -5,40 +5,6 @@ target: vscode
 argument-hint: Describe the feature, epic, or change to plan
 tools: ['execute/getTerminalOutput', 'execute/runInTerminal', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit', 'search', 'web', 'agent', 'todo']
 model: GPT-5.2
-handoffs:
-  - label: Validate Roadmap Alignment
-    agent: Roadmap
-    prompt: Validate that plan delivers epic outcomes defined in roadmap.
-    send: false
-  - label: Validate Architectural Alignment
-    agent: Architect
-    prompt: Please review this plan to ensure it aligns with the architecture.
-    send: false
-  - label: Request Analysis
-    agent: Analyst
-    prompt: I've encountered technical unknowns that require deep investigation. Please analyze.
-    send: false
-  - label: Submit for Review
-    agent: Critic
-    prompt: Plan is complete. Please review for clarity, completeness, and architectural alignment.
-    send: false
-  - label: Begin Implementation
-    agent: Implementer
-    prompt: Plan has been approved. Proceed with implementation; the user will decide whether to run Implementer locally or as a background agent.
-    send: false
-  - label: Current Plan Status
-    agent: Planner
-    prompt: Plan status (skill): produce the strict plain-text report format with evidence links
-    send: false
-  - label: Consolidate Plan
-    agent: Planner
-    prompt: Group all outstanding planning work into a new plan, add the work below to that plan, and close the prior plans.
-    send: false
-  - label: Create Git Commit Message
-    agent: Planner
-    prompt: Create a git commit message (skill) for the current staged changes
-    send: false
-    
 ---
 
 ## Purpose
@@ -162,9 +128,25 @@ Prefer small, focused scopes delivering value quickly.
     4. Do NOT proceed to implementation handoff until user explicitly approves
     5. On approval, update frontmatter: `User_Approved: true`, `User_Approved_Date: [ISO-8601]`
 
-### Execution Orchestration (Post-Critic Approval Only)
+### Execution Orchestration (Default Mode After User Approval)
 
-Planner may optionally run an execution-orchestration mode to coordinate downstream work and keep progress auditable.
+When the user approves the plan and indicates they want execution to proceed (e.g., "execute until completion," "proceed," "go ahead," "run it," or similar), Planner enters **orchestration mode** as the **default behavior**. Orchestration coordinates downstream work via subagent delegation and keeps progress auditable.
+
+#### Orchestration Triggers
+
+The following user phrases (or similar intent) trigger orchestration mode after plan approval:
+- "execute until completion"
+- "proceed"
+- "go ahead"
+- "run it"
+- "implement this"
+- "start implementation"
+- "execute the plan"
+- Any indication the user wants the workflow to proceed without manual agent switching
+
+When triggered, Planner delegates to the appropriate subagent (starting with Implementer) and continues orchestrating until completion or a HARD BLOCK.
+
+#### Orchestration Rules
 
 Rules:
 - **Do not bypass Critic**: Orchestration MUST NOT begin until the plan has passed Critic review.
@@ -179,6 +161,8 @@ When orchestrating, Planner MUST:
 - Enforce workflow order: `Planner -> Critic -> Implementer -> Code Reviewer -> QA -> UAT -> DevOps`
 - Use strict response gating for subagent returns (`COMPLETE` vs `HARD BLOCK`) per the skill contract
 - Update the execution-state file after each handoff and each subagent return
+- **Delegation Contract (MANDATORY)**: Every subagent delegation MUST follow the delegation contract from the `execution-orchestration` skill: Objective, Scope, Inputs, Constraints, Deliverables, Acceptance Criteria, Return Format. Incomplete delegation prompts risk context loss.
+- **NEVER tell the user to "switch to" another agent** — Planner delegates directly via subagent invocation. If delegation is not possible for a specific reason, explain the constraint clearly rather than suggesting manual agent switching.
 
 #### Handling HARD BLOCKs During Orchestration
 
@@ -265,12 +249,13 @@ When a subagent returns a HARD BLOCK or the planner itself identifies a blocking
 
 ## Agent Workflow
 
-- **Invoke analyst when**: Unknown APIs, unverified assumptions, comparative analysis needed. Analyst creates matching docs in `analysis/` (e.g., `003-fix-workspace-analysis.md`).
-- **Use subagents when available**: When VS Code subagents are enabled, you may invoke Analyst and Implementer as subagents for focused, context-isolated work (e.g., limited experiments or clarifications) while keeping ownership of the overall plan.
-- **Handoff to critic (REQUIRED)**: ALWAYS hand off after completing plan. Critic reviews before implementation.
-- **Handoff to implementer**: After critic approval, implementer executes plan.
+- **Delegate to Analyst when**: Unknown APIs, unverified assumptions, comparative analysis needed. Invoke Analyst as subagent; Analyst creates matching docs in `analysis/` (e.g., `003-fix-workspace-analysis.md`).
+- **Use subagent delegation**: Invoke Analyst, Implementer, and other agents as subagents for focused, context-isolated work while keeping ownership of the overall plan and orchestration.
+- **Delegate to Critic (REQUIRED)**: ALWAYS delegate to Critic after completing plan. Critic reviews before implementation proceeds.
+- **Delegate to Implementer**: After Critic approval and user permission to proceed, delegate to Implementer via subagent invocation. Do NOT tell the user to "switch to Implementer" manually.
 - **Reference Analysis**: Plans may reference analysis docs.
-- **QA issues**: QA sends bugs/failures to implementer to fix. Only re-plan if PLAN was fundamentally flawed.
+- **QA issues**: QA reports bugs/failures back to orchestrator; Planner delegates fixes to Implementer. Only re-plan if PLAN was fundamentally flawed.
+- **No manual switching**: The Planner MUST NOT instruct users to manually switch to another agent. All inter-agent coordination happens via subagent delegation.
 
 ---
 

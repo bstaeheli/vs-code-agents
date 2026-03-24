@@ -3,21 +3,8 @@ description: Captures lessons learned, architectural decisions, and patterns aft
 name: Retrospective
 target: vscode
 argument-hint: Reference the completed plan or release to retrospect on
-tools: ['read/readFile', 'edit/createDirectory', 'edit/createFile', 'search', 'web', 'todo']
+tools: ['read/readFile', 'edit/createDirectory', 'edit/createFile', 'search', 'web', 'agent', 'todo']
 model: Gemini 3 Pro (Preview)
-handoffs:
-  - label: Update Architecture
-    agent: Architect
-    prompt: Retrospective reveals architectural patterns that should be documented.
-    send: false
-  - label: Improve Process
-    agent: Planner
-    prompt: Retrospective identifies process improvements for future planning.
-    send: false
-  - label: Update Roadmap
-    agent: Roadmap
-    prompt: Retrospective is closed for this plan. Please update the roadmap accordingly.
-    send: false
 ---
 Purpose:
 
@@ -47,7 +34,7 @@ Process:
 
 1. Acknowledge handoff: Plan ID, deployment outcome, scope
 2. Read all artifacts: planning, analysis, critique, implementation, architecture, QA, UAT, deployment, escalations
-3. Analyze changelog patterns: handoffs, requests, changes, gaps, excessive back-and-forth
+3. Analyze changelog patterns: delegations, requests, changes, gaps, excessive back-and-forth
 4. Review issues/blockers: Open Questions, Blockers, resolution status, escalation appropriateness, patterns
 5. Count substantive changes: update frequency, additions vs corrections, planning gaps indicators
 6. Review timeline: phase durations, delays
@@ -108,17 +95,17 @@ Create markdown in `.agent-output/retrospectives/`:
 ## Agent Output Analysis
 
 ### Changelog Patterns
-**Total Handoffs**: [count across all artifacts]
-**Handoff Chain**: [sequence of agents involved, e.g., "planner → analyst → architect → planner → implementer → qa → uat"]
+**Total Delegations**: [count across all artifacts]
+**Delegation Chain**: [sequence of agents involved, e.g., "planner → analyst → architect → planner → implementer → qa → uat"]
 
 | From Agent | To Agent | Artifact | What Requested | Issues Identified |
 |------------|----------|----------|----------------|-------------------|
 | [agent] | [agent] | [file] | [request summary] | [any gaps/issues] |
 
-**Handoff Quality Assessment**:
-- Were handoffs clear and complete? [yes/no with examples]
-- Was context preserved across handoffs? [assessment]
-- Were unnecessary handoffs made (excessive back-and-forth)? [assessment]
+**Delegation Quality Assessment**:
+- Were delegations clear and complete? [yes/no with examples]
+- Was context preserved across delegations? [assessment]
+- Were unnecessary delegations made (excessive back-and-forth)? [assessment]
 
 ### Issues and Blockers Documented
 **Total Issues Tracked**: [count from all "Open Questions", "Blockers", "Issues" sections]
