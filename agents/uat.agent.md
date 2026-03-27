@@ -4,7 +4,7 @@ name: UAT
 target: vscode
 argument-hint: Reference the implementation or plan to validate (e.g., plan 002)
 tools: ['read/problems', 'read/readFile', 'search', 'agent', 'todo']
-model: Claude Sonnet 4.5
+model: Claude Sonnet 4.6
 ---
 Purpose:
 

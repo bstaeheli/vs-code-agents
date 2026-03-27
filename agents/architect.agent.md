@@ -4,7 +4,7 @@ name: Architect
 target: vscode
 argument-hint: Describe the feature, component, or system area requiring architectural review
 tools: ['execute/getTerminalOutput', 'execute/getTaskOutput', 'execute/createAndRunTask', 'execute/runInTerminal', 'read/problems', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit/createDirectory', 'edit/createFile', 'edit/editFiles', 'search', 'web', 'agent', 'todo']
-model: GPT-5.2
+model: GPT-5.4
 ---
 Purpose:
 - Own system architecture. Technical authority for tool/language/service/integration decisions.

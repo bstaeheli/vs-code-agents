@@ -4,7 +4,7 @@ name: ProcessImprovement
 target: vscode
 argument-hint: Reference the retrospective or process area to analyze
 tools: ['vscode/vscodeAPI', 'execute/runNotebookCell', 'execute/getTerminalOutput', 'execute/runInTerminal', 'read', 'edit/createDirectory', 'edit/createFile', 'edit/editFiles', 'search', 'web', 'agent', 'todo']
-model: GPT-5.2
+model: GPT-5.4
 ---
 
 ## Purpose
